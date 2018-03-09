@@ -9,21 +9,23 @@
     </div>
 
     <div class="my-3 p-3 bg-light rounded box-shadow todo-list">
-      <!-- v-model="allDone" -->
-      <input class="toggle-all" type="checkbox">
+
+      <input class="toggle-all" type="checkbox" v-model="isAllDone">
       <input autofocus="autofocus" autocomplete="off" placeholder="What needs to be done?" class="new-todo" @keyup.enter="addTodo" v-model="todoItem">
 
-      <li class="media text-muted pt-3 todo" v-on:mouseover="mouseOver" v-for="(item, i) in todos">
+      <!-- <li class="media text-muted pt-3 todo" :class="{completeds:isAllDone, completed:isCompleted}" v-for="(item, i) in todos"> -->
+      <li class="media text-muted pt-3 todo" :class="[{completed:isAllDone}, {completed:isChecked}]" v-for="(item, i) in todos">
+        <!-- v-model="isCompleted" -->
         <input type="checkbox" class="toggle">
         <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray ml-3">
           <strong class="d-block text-gray-dark">{{ item }}</strong>
         </p>
-        <button class="destroy"></button>
+        <button class="destroy" @click="deleteItem(item)"></button>
       </li>
 
       <small class="d-block mt-3">
-        <span class="todo-count">item left</span>
-        <span class="todo-count" v-show="false">items left</span>
+        <span class="todo-count" v-show="!itemIsEqualTo0"> {{ countTodoItems }} left</span>
+        <span class="todo-count" v-show="itemIsEqualTo0">0 item</span>
         <ul class="filters">
           <li>
             <a href="#/all" class="selected">All</a>
@@ -34,8 +36,10 @@
           <li>
             <a href="#/completed" class="">Completed</a>
           </li>
+          <li>
+            <a href="#/clearCompleted" class="">Clear completed</a>
+          </li>
         </ul>
-        <a class="ml-3" href="#">Clear completed</a>
       </small>
     </div>
   </main>
@@ -43,22 +47,41 @@
 
 <script>
 export default {
+  
   name: 'HelloWorld',
   data() {
     return {
       todos: ['Learn vue.js 2.x', 'Learn vue.js with webpack'],
       todoItem: '',
-      active: true
+      isCompleted: false,
+      isAllDone: false,
+      
     }
   },
   methods: {
-    mouseOver() {
-      // console.log("hover")
-      // this.active = !this.active;
-    },
     addTodo() {
       this.todos.push(this.todoItem)
-      // console.log(this.todos)
+      this.todoItem = ""
+    },
+    deleteItem(text){
+      this.todos.splice(this.todos.indexOf(text), 1)
+    }
+  },
+  computed: {
+    countTodoItems: function() {
+      if (this.todos.length == 1) {
+        return "1 item"
+      }else
+        return this.todos.length + " items"
+    },
+    itemIsEqualTo0: function(){
+      if (this.todos.length == 0) {
+        return true
+      }else
+        return false
+    },
+    isChecked: function(){
+      // return true
     }
   }
 }
@@ -140,9 +163,11 @@ button {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-button:focus {outline:0;}
+button:focus {
+  outline: 0;
+}
 
-.todo{
+.todo {
   position: relative;
 }
 
@@ -183,6 +208,23 @@ button:focus {outline:0;}
   li {
     display: inline;
   }
+}
+
+.filters li a {
+  color: inherit;
+  margin: 3px;
+  padding: 3px 7px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.filters li a:hover {
+  border-color: rgba(175, 47, 47, 0.1);
+}
+
+.filters li a.selected {
+  border-color: rgba(175, 47, 47, 0.2);
 }
 
 .nav-scroller {
